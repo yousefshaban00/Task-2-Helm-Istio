@@ -1,0 +1,51 @@
+# Please edit the object below. Lines beginning with a '#' will be ignored,
+# and an empty file will abort the edit. If an error occurs while saving this file will be
+# reopened with the relevant failures.
+#
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: nginx‏
+    nginx.ingress.kubernetes.io/rewrite-target: /
+  creationTimestamp: "2022-12-25T11:57:08Z"
+  generation: 11
+  name: xyz-x
+  namespace: interview
+  resourceVersion: "1128225"
+  uid: 77ae7bf8-95ea-4e31-92a9-cdb93304733e
+spec:
+  ingressClassName: nginx
+  rules:
+  - http:
+      paths:
+      - backend:
+          service:
+            name: hello-world-de
+            port:
+              number: 80
+        path: /de
+        pathType: Prefix
+  - http:     
+      paths:
+      - backend:
+          service:
+            name: hello-world-fr
+            port:
+              number: 80
+        path: /fr
+        pathType: Prefix
+  - http:
+      paths:
+      - backend:
+          service:
+            name: hello-world-es
+            port:
+              number: 80
+        path: /es
+        pathType: Prefix
+
+status:
+  loadBalancer:
+    ingress:
+    - hostname: a97dbbaff8e114fd386aa4ba3f365cd3-2121781278.us-east-1.elb.amazonaws.com
