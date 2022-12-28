@@ -99,7 +99,7 @@ helm repo update
 helm install nginx-ingress-controller ingress-nginx/ingress-nginx
 ```
 
-## **Create Ingress resource for L7 load balancing by http hosts & paths for 3 application.
+## Create Ingress resource for L7 load balancing by http hosts & paths for 3 application.
 
 
 - nginx.ingress.kubernetes.io/rewrite-target: /
