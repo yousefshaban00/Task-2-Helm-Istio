@@ -87,7 +87,7 @@ helm upgrade -n interview --install --values 1-helm-debug/helm/values.yaml inter
 The Nginx Ingress Controller is a Kubernetes add-on that allows you to use Nginx as a load balancer for your applications running on a Kubernetes cluster. The Nginx Ingress Controller works by listening for incoming traffic and routing it to the appropriate service based on the hostname and path specified in the request.
 
 
-## **Install Nginx Ingress Controller
+## Install Nginx Ingress Controller
 
 ```
 # add new repo ingress-nginx/ingress-nginx
