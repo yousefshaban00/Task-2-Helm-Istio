@@ -502,7 +502,7 @@ spec:
 
 ```
 
-     **Output for VirtualService**
+ **Output for VirtualService**
   
   
   OutPut
@@ -554,8 +554,7 @@ Events:            <none>
 
 ```
   
-  
-     **Step 04: Define DestinationRule** `destinationrule.yaml`
+**Step 04: Define DestinationRule** `destinationrule.yaml`
 
 
 ```
