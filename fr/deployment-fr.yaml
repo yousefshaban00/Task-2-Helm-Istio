@@ -62,22 +62,4 @@ spec:
       schedulerName: default-scheduler
       securityContext: {}
       terminationGracePeriodSeconds: 30
-status:
-  availableReplicas: 1
-  conditions:
-  - lastTransitionTime: "2022-12-29T10:16:07Z"
-    lastUpdateTime: "2022-12-29T10:16:07Z"
-    message: Deployment has minimum availability.
-    reason: MinimumReplicasAvailable
-    status: "True"
-    type: Available
-  - lastTransitionTime: "2022-12-29T10:16:04Z"
-    lastUpdateTime: "2022-12-29T10:16:07Z"
-    message: ReplicaSet "hello-world-fr-7fbccc49f4" has successfully progressed.
-    reason: NewReplicaSetAvailable
-    status: "True"
-    type: Progressing
-  observedGeneration: 1
-  readyReplicas: 1
-  replicas: 1
-  updatedReplicas: 1
+
