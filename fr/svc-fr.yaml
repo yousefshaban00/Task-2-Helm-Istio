@@ -1,0 +1,36 @@
+# Please edit the object below. Lines beginning with a '#' will be ignored,
+# and an empty file will abort the edit. If an error occurs while saving this file will be
+# reopened with the relevant failures.
+#
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    meta.helm.sh/release-name: interview-task
+    meta.helm.sh/release-namespace: interview
+  creationTimestamp: "2022-12-26T23:49:30Z"
+  labels:
+    app.kubernetes.io/managed-by: Helm
+    svc-name: hello-world-fr
+  name: hello-world-fr
+  namespace: interview
+  resourceVersion: "1135133"
+  uid: dc987d2a-12df-44d2-813d-a3a832aab63a
+spec:
+  clusterIP: 172.20.70.6
+  clusterIPs:
+  - 172.20.70.6
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 8000
+  selector:
+    svc-name: hello-world-fr
+  sessionAffinity: None
+  type: ClusterIP
+status:
+  loadBalancer: {}

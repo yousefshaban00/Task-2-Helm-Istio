@@ -1,0 +1,19 @@
+# Please edit the object below. Lines beginning with a '#' will be ignored,
+# and an empty file will abort the edit. If an error occurs while saving this file will be
+# reopened with the relevant failures.
+#
+apiVersion: v1
+data:
+  fr: Ami
+kind: ConfigMap
+metadata:
+  annotations:
+    meta.helm.sh/release-name: interview-task
+    meta.helm.sh/release-namespace: interview
+  creationTimestamp: "2022-12-26T23:49:30Z"
+  labels:
+    app.kubernetes.io/managed-by: Helm
+  name: hello-world-fr
+  namespace: interview
+  resourceVersion: "1135131"
+  uid: 5dd3ecd1-a298-4aef-802a-581a9af407b0

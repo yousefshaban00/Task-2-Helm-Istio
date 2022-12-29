@@ -1,0 +1,83 @@
+# Please edit the object below. Lines beginning with a '#' will be ignored,
+# and an empty file will abort the edit. If an error occurs while saving this file will be
+# reopened with the relevant failures.
+#
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "1"
+    meta.helm.sh/release-name: interview-task-es
+    meta.helm.sh/release-namespace: interview
+  creationTimestamp: "2022-12-29T10:14:56Z"
+  generation: 1
+  labels:
+    app: hello
+    app.kubernetes.io/managed-by: Helm
+    svc-name: hello-world-es
+  name: hello-world-es
+  namespace: interview
+  resourceVersion: "2166527"
+  uid: 16c006d7-d63f-4d11-a981-0abbb002191d
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: hello
+      svc-name: hello-world-es
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/restartedAt: "2022-12-27T02:50:19+01:00"
+      creationTimestamp: null
+      labels:
+        app: hello
+        svc-name: hello-world-es
+    spec:
+      containers:
+      - env:
+        - name: WORLD
+          valueFrom:
+            configMapKeyRef:
+              key: es
+              name: hello-world-es
+        image: adamgolab/hello-world:latest
+        imagePullPolicy: Always
+        name: hello-world-es
+        ports:
+        - containerPort: 8000
+          protocol: TCP
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+status:
+  availableReplicas: 1
+  conditions:
+  - lastTransitionTime: "2022-12-29T10:14:59Z"
+    lastUpdateTime: "2022-12-29T10:14:59Z"
+    message: Deployment has minimum availability.
+    reason: MinimumReplicasAvailable
+    status: "True"
+    type: Available
+  - lastTransitionTime: "2022-12-29T10:14:56Z"
+    lastUpdateTime: "2022-12-29T10:14:59Z"
+    message: ReplicaSet "hello-world-es-578f4f859c" has successfully progressed.
+    reason: NewReplicaSetAvailable
+    status: "True"
+    type: Progressing
+  observedGeneration: 1
+  readyReplicas: 1
+  replicas: 1
+  updatedReplicas: 1
