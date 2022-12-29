@@ -340,7 +340,7 @@ istioctl analyze
   
  
   
-  **Here is define a VPC variable in Terraform:** `c3-01-vpc-variables.tf`
+  ** Step 01: injected namespace and make deployment rollout restart
   
 ```
   Kubectl label ns interview istio-injection=enabled
@@ -353,7 +353,7 @@ istioctl analyze
    
 ```
  
- **Here is define a VPC variable in Terraform:** `c3-01-vpc-variables.tf`
+ **  ** Step 02: Define service (eu) that have label selector (app: hello) for all deployments ** `svc-eu.yaml`
  
 ```
 apiVersion: v1
