@@ -388,7 +388,8 @@ status:
   loadBalancer: {}
 
   ```
-   **Output for service and deployments **
+  
+  **Output for service and deployments **
 
   ```
   PS C:\Allinaz_Task\httpbin> kubectl get svc -n interview -o wide
@@ -408,7 +409,8 @@ hello-world-fr    1/1     1            1           19m   hello-world-fr   adamgo
   
   ```
   
-   **Step 03: Define Gateway ** `gateway.yaml`
+  
+ **Step 03: Define Gateway ** `gateway.yaml`
   
   
   ```
@@ -430,7 +432,7 @@ spec:
 
 ```
 
-     **Output for Gateway**
+**Output for Gateway**
 
 ```
 
