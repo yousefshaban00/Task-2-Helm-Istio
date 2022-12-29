@@ -1,0 +1,21 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: hello-world-eu
+  namespace: interview
+spec:
+  gateways:
+  - hello-world-eu-gateway.default
+  hosts:
+  - a400544bd402841f39cf622fdf2dbcf9-563330185.us-east-1.elb.amazonaws.com
+  http:
+  - match:
+    - uri:
+        prefix: /eu
+    rewrite:
+      uri: /
+    route:
+    - destination:
+        host: hello-world-eu.interview.svc.cluster.local
+        port:
+          number: 80

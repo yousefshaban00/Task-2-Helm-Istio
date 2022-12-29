@@ -1,0 +1,14 @@
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  creationTimestamp: "2022-12-29T10:26:55Z"
+  generation: 1
+  name: hello-word-destination-rule
+  namespace: interview
+  resourceVersion: "2170194"
+  uid: 385ed270-7fa3-4399-937c-966d96de4863
+spec:
+  host: hello-world-eu.interview.svc.cluster.local
+  trafficPolicy:
+    loadBalancer:
+      simple: ROUND_ROBIN

@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    meta.helm.sh/release-name: interview-task-de
+    meta.helm.sh/release-namespace: interview
+  labels:
+    app.kubernetes.io/managed-by: Helm
+    svc-name: hello-world-eu
+  name: hello-world-eu
+  namespace: interview
+  resourceVersion: "2163376"
+spec:
+  clusterIP: 172.20.134.204
+  clusterIPs:
+  - 172.20.134.204
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 8000
+  selector:
+    app: hello
+  sessionAffinity: None
+  type: ClusterIP
+status:
+  loadBalancer: {}
