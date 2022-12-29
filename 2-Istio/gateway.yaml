@@ -1,0 +1,15 @@
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: hello-world-eu-gateway
+  namespace: default
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - hosts:
+    - a400544bd402841f39cf622fdf2dbcf9-563330185.us-east-1.elb.amazonaws.com
+    port:
+      name: http
+      number: 80
+      protocol: HTTP
