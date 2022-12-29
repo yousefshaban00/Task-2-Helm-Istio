@@ -388,7 +388,8 @@ status:
   loadBalancer: {}
 
   ```
-   **Output for service and deployments **
+  
+  **Output for service and deployments**
 
   ```
   PS C:\Allinaz_Task\httpbin> kubectl get svc -n interview -o wide
@@ -408,7 +409,8 @@ hello-world-fr    1/1     1            1           19m   hello-world-fr   adamgo
   
   ```
   
-   **Step 03: Define Gateway ** `gateway.yaml`
+  
+ **Step 03: Define Gateway** `gateway.yaml`
   
   
   ```
@@ -430,7 +432,7 @@ spec:
 
 ```
 
-     **Output for Gateway**
+**Output for Gateway**
 
 ```
 
@@ -472,7 +474,9 @@ Spec:
 Events:          <none>
 ```
 
+
    **Step 04: Define  VirtualService** `virtualservice.yaml`
+  
   
   
 ```
@@ -499,7 +503,9 @@ spec:
           number: 80
 
 ```
-     **Output for VirtualService**
+
+ **Output for VirtualService**
+  
   
   OutPut
    ```
@@ -550,7 +556,7 @@ Events:            <none>
 
 ```
   
-     **Step 04: Define DestinationRule** `destinationrule.yaml`
+**Step 04: Define DestinationRule** `destinationrule.yaml`
 
 
 ```
@@ -571,7 +577,8 @@ spec:
 
   ```
   
-     **Output for DestinationRule**
+   **Output for DestinationRule**
+     
    ```
   PS C:\Allinaz_Task\httpbin> kubectl get destinationrules -n interview
 NAME                          HOST                                         AGE
@@ -612,7 +619,7 @@ Events:        <none>
   
  ```
 
- **Step 05: Output from Browser
+ **Step 05: Output from Browser**
   
 Output
 ```bash
@@ -625,7 +632,7 @@ http://a400544bd402841f39cf622fdf2dbcf9-563330185.us-east-1.elb.amazonaws.com/eu
 Hello Ami
 ```
 
-   **Step 06: Output from Logs
+   **Step 06: Output from Logs**
   
   ```
 PS C:\Allinaz_Task\httpbin> kubectl logs hello-world-de-7f7dd84f4-5vlc5 -c istio-proxy -n interview
