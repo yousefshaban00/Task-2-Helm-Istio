@@ -577,7 +577,7 @@ spec:
 
   ```
   
-     **Output for DestinationRule**
+   **Output for DestinationRule**
      
    ```
   PS C:\Allinaz_Task\httpbin> kubectl get destinationrules -n interview
