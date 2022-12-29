@@ -10,10 +10,8 @@ metadata:
   annotations:
     meta.helm.sh/release-name: interview-task-de
     meta.helm.sh/release-namespace: interview
-  creationTimestamp: "2022-12-26T23:50:18Z"
   labels:
     app.kubernetes.io/managed-by: Helm
   name: hello-world-de
   namespace: interview
-  resourceVersion: "1135418"
-  uid: cfa184de-bae1-4121-8ec0-3ea6468f3628
+
