@@ -350,8 +350,10 @@ istioctl analyze
    
 ```
  
+ 
+ 
 ```
- apiVersion: v1
+apiVersion: v1
 kind: Service
 metadata:
   annotations:
@@ -360,9 +362,13 @@ metadata:
   labels:
     app.kubernetes.io/managed-by: Helm
     svc-name: hello-world-eu
-  namespace: interview
   name: hello-world-eu
+  namespace: interview
+  resourceVersion: "2163376"
 spec:
+  clusterIP: 172.20.134.204
+  clusterIPs:
+  - 172.20.134.204
   internalTrafficPolicy: Cluster
   ipFamilies:
   - IPv4
@@ -372,72 +378,242 @@ spec:
     protocol: TCP
     targetPort: 8000
   selector:
-    svc-name: hello-world-eu
+    app: hello
   sessionAffinity: None
   type: ClusterIP
 status:
   loadBalancer: {}
+
+  ```
+  
+  
+  ```
+  PS C:\Allinaz_Task\httpbin> kubectl get svc -n interview -o wide
+NAME             TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)   AGE     SELECTOR
+hello-world-de   ClusterIP   172.20.63.246    <none>        80/TCP    2d10h   svc-name=hello-world-de
+hello-world-es   ClusterIP   172.20.214.248   <none>        80/TCP    2d10h   svc-name=hello-world-es
+hello-world-eu   ClusterIP   172.20.134.204   <none>        80/TCP    32m     app=hello
+hello-world-fr   ClusterIP   172.20.70.6      <none>        80/TCP    2d10h   svc-name=hello-world-fr
+PS C:\Allinaz_Task\httpbin> kubectl deploy svc -n interview -o wide^C
+PS C:\Allinaz_Task\httpbin> kubectl get deploy -n interview -o wide
+NAME              READY   UP-TO-DATE   AVAILABLE   AGE   CONTAINERS       IMAGES                                                SELECTOR
+hello-world-de    1/1     1            1           22m   hello-world-de   adamgolab/hello-world:latest                          app=hello,svc-name=hello-world-de
+hello-world-es    1/1     1            1           20m   hello-world-es   adamgolab/hello-world:latest                          app=hello,svc-name=hello-world-es
+hello-world-eu    1/1     1            1           47h   hello-world-de   adamgolab/hello-world:latest                          svc-name=hello-world-eu
+hello-world-fr    1/1     1            1           19m   hello-world-fr   adamgolab/hello-world:latest                          app=hello,svc-name=hello-world-fr
+  
+  
   ```
   
   
   
   ```
-  apiVersion: networking.istio.io/v1alpha3
+apiVersion: networking.istio.io/v1beta1
 kind: Gateway
 metadata:
-  name: hello-word-gateway
+  name: hello-world-eu-gateway
+  namespace: default
 spec:
   selector:
-    istio: ingressgateway # use Istio default gateway implementation
+    istio: ingressgateway
   servers:
-  - port:
-      number: 80
+  - hosts:
+    - a400544bd402841f39cf622fdf2dbcf9-563330185.us-east-1.elb.amazonaws.com
+    port:
       name: http
+      number: 80
       protocol: HTTP
-    hosts:
-    - "*"   # Domain name of the external website
+
 ```
 
 
 ```
+
+PS C:\Allinaz_Task\httpbin> kubectl describe gateway hello-world-eu-gateway        
+Name:         hello-world-eu-gateway
+Namespace:    default
+Labels:       <none>
+Annotations:  <none>
+API Version:  networking.istio.io/v1beta1
+Kind:         Gateway
+Metadata:
+  Creation Timestamp:  2022-12-29T10:22:10Z
+  Generation:          1
+  Managed Fields:
+    API Version:  networking.istio.io/v1beta1
+    Fields Type:  FieldsV1
+    fieldsV1:
+      f:spec:
+        .:
+        f:selector:
+          .:
+          f:istio:
+        f:servers:
+    Manager:         kubectl-replace
+    Operation:       Update
+    Time:            2022-12-29T10:22:10Z
+  Resource Version:  2168766
+  UID:               d5b1c9fe-d75f-43a8-ad07-62071b0b1143
+Spec:
+  Selector:
+    Istio:  ingressgateway
+  Servers:
+    Hosts:
+      a400544bd402841f39cf622fdf2dbcf9-563330185.us-east-1.elb.amazonaws.com
+    Port:
+      Name:      http
+      Number:    80
+      Protocol:  HTTP
+Events:          <none>
+```
+
+
+```
+apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
-apiVersion: networking.istio.io/v1alpha3
 metadata:
-  name: hello-word-vs
+  name: hello-world-eu
   namespace: interview
 spec:
-  hosts:      # which incoming host are we applying the proxy rules to???
-    - "*" # Copy the value in the gateway hosts - usually a Domain Name
   gateways:
-    - hello-word-gateway
+  - hello-world-eu-gateway.default
+  hosts:
+  - a400544bd402841f39cf622fdf2dbcf9-563330185.us-east-1.elb.amazonaws.com
   http:
-  - match:     # This is a LIST
-    - uri: 
-        exact: /eu   # prefix: /static
-    route: # THEN
+  - match:
+    - uri:
+        prefix: /eu
+    rewrite:
+      uri: /
+    route:
     - destination:
-        host: hello-world-eu
- 	port:
-	  number: 8000	
-```
+        host: hello-world-eu.interview.svc.cluster.local
+        port:
+          number: 80
 
 ```
-apiVersion: networking.istio.io/v1alpha3
+
+  
+  OutPut
+   ```
+PS C:\Allinaz_Task\httpbin> kubectl get vs -n interview
+NAME             GATEWAYS                             HOSTS                                                                        AGE 
+hello-world-eu   ["hello-world-eu-gateway.default"]   ["a400544bd402841f39cf622fdf2dbcf9-563330185.us-east-1.elb.amazonaws.com"]   9m8s
+PS C:\Allinaz_Task\httpbin> kubectl describe vs -n interview
+Name:         hello-world-eu
+Namespace:    interview
+Labels:       <none>
+Annotations:  <none>
+API Version:  networking.istio.io/v1beta1
+Kind:         VirtualService
+Metadata:
+  Creation Timestamp:  2022-12-29T10:23:41Z
+  Generation:          1
+  Managed Fields:
+    API Version:  networking.istio.io/v1beta1
+    Fields Type:  FieldsV1
+    fieldsV1:
+      f:spec:
+        .:
+        f:gateways:
+        f:hosts:
+        f:http:
+    Manager:         kubectl-replace
+    Operation:       Update
+    Time:            2022-12-29T10:23:41Z
+  Resource Version:  2169220
+  UID:               09a999ea-7b8b-48ab-800d-109e53ccfae8
+Spec:
+  Gateways:
+    hello-world-eu-gateway.default
+  Hosts:
+    a400544bd402841f39cf622fdf2dbcf9-563330185.us-east-1.elb.amazonaws.com
+  Http:
+    Match:
+      Uri:
+        Prefix:  /eu
+    Rewrite:
+      Uri:  /
+    Route:
+      Destination:
+        Host:  hello-world-eu.interview.svc.cluster.local
+        Port:
+          Number:  80
+Events:            <none>
+
+```
+
+
+
+```
+apiVersion: networking.istio.io/v1beta1
 kind: DestinationRule
 metadata:
+  creationTimestamp: "2022-12-29T10:26:55Z"
+  generation: 1
   name: hello-word-destination-rule
+  namespace: interview
+  resourceVersion: "2170194"
+  uid: 385ed270-7fa3-4399-937c-966d96de4863
 spec:
-  host: hello-world-eu.interview.svc.cluster.local 
+  host: hello-world-eu.interview.svc.cluster.local
   trafficPolicy:
     loadBalancer:
       simple: ROUND_ROBIN
+
   ```
   
+  Output
+   ```
+  PS C:\Allinaz_Task\httpbin> kubectl get destinationrules -n interview
+NAME                          HOST                                         AGE
+hello-word-destination-rule   hello-world-eu.interview.svc.cluster.local   4m5s
+PS C:\Allinaz_Task\httpbin> kubectl describe destinationrules hello-word-destination-rule -n interview
+Name:         hello-word-destination-rule
+Namespace:    interview
+Labels:       <none>
+Annotations:  <none>
+API Version:  networking.istio.io/v1beta1
+Kind:         DestinationRule
+Metadata:
+  Creation Timestamp:  2022-12-29T10:26:55Z
+  Generation:          1
+  Managed Fields:
+    API Version:  networking.istio.io/v1alpha3
+    Fields Type:  FieldsV1
+    fieldsV1:
+      f:spec:
+        .:
+        f:host:
+        f:trafficPolicy:
+          .:
+          f:loadBalancer:
+            .:
+            f:simple:
+    Manager:         kubectl-create
+    Operation:       Update
+    Time:            2022-12-29T10:26:55Z
+  Resource Version:  2170194
+  UID:               385ed270-7fa3-4399-937c-966d96de4863
+Spec:
+  Host:  hello-world-eu.interview.svc.cluster.local
+  Traffic Policy:
+    Load Balancer:
+      Simple:  ROUND_ROBIN
+Events:        <none>
   
-  
+ ```
 
-
-
+Output
+```bash
+# visit this from browser
+http://a400544bd402841f39cf622fdf2dbcf9-563330185.us-east-1.elb.amazonaws.com/eu
+Hello Freund
+http://a400544bd402841f39cf622fdf2dbcf9-563330185.us-east-1.elb.amazonaws.com/eu
+Hello Amigo
+http://a400544bd402841f39cf622fdf2dbcf9-563330185.us-east-1.elb.amazonaws.com/eu
+Hello Ami
+```
 
 
 
