@@ -338,7 +338,10 @@ istioctl analyze
   
 "Hello Ami"
   
-   
+ 
+  
+  **Here is define a VPC variable in Terraform:** `c3-01-vpc-variables.tf`
+  
 ```
   Kubectl label ns interview istio-injection=enabled
   Kubectl label ns nginx-ingress-controller istio-injection=enabled
@@ -350,7 +353,7 @@ istioctl analyze
    
 ```
  
- 
+ **Here is define a VPC variable in Terraform:** `c3-01-vpc-variables.tf`
  
 ```
 apiVersion: v1
@@ -386,7 +389,7 @@ status:
 
   ```
   
-  
+
   ```
   PS C:\Allinaz_Task\httpbin> kubectl get svc -n interview -o wide
 NAME             TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)   AGE     SELECTOR
@@ -405,6 +408,8 @@ hello-world-fr    1/1     1            1           19m   hello-world-fr   adamgo
   
   ```
   
+  
+  **Here is define a VPC variable in Terraform:** `c3-01-vpc-variables.tf`
   
   
   ```
@@ -467,7 +472,8 @@ Spec:
 Events:          <none>
 ```
 
-
+**Here is define a VPC variable in Terraform:** `c3-01-vpc-variables.tf`
+  
 ```
 apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
@@ -543,7 +549,7 @@ Events:            <none>
 
 ```
 
-
+**Here is define a VPC variable in Terraform:** `c3-01-vpc-variables.tf`
 
 ```
 apiVersion: networking.istio.io/v1beta1
@@ -604,6 +610,8 @@ Events:        <none>
   
  ```
 
+  **Here is define a VPC variable in Terraform:** `c3-01-vpc-variables.tf`
+  
 Output
 ```bash
 # visit this from browser
