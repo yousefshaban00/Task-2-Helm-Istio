@@ -87,7 +87,8 @@ helm upgrade -n interview --install --values 1-helm-debug/helm/values.yaml inter
 The Nginx Ingress Controller is a Kubernetes add-on that allows you to use Nginx as a load balancer for your applications running on a Kubernetes cluster. The Nginx Ingress Controller works by listening for incoming traffic and routing it to the appropriate service based on the hostname and path specified in the request.
 
 
-- **Install Nginx Ingress Controller
+## Install Nginx Ingress Controller
+
 ```
 # add new repo ingress-nginx/ingress-nginx
 helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
@@ -98,7 +99,7 @@ helm repo update
 helm install nginx-ingress-controller ingress-nginx/ingress-nginx
 ```
 
-- **Create Ingress resource for L7 load balancing by http hosts & paths for 3 application.
+## Create Ingress resource for L7 load balancing by http hosts & paths for 3 application.
 
 
 - nginx.ingress.kubernetes.io/rewrite-target: /
@@ -246,7 +247,7 @@ Hello Ami
 ```
 
 
-Part 2:
+## Part 2:
 
 ## Istio
 ## 1.1 What is Service Mesh
@@ -337,7 +338,10 @@ istioctl analyze
   
 "Hello Ami"
   
-   
+ 
+  
+  **Step 01: injected namespace and make deployment rollout restart**
+  
 ```
   Kubectl label ns interview istio-injection=enabled
   Kubectl label ns nginx-ingress-controller istio-injection=enabled
@@ -349,8 +353,10 @@ istioctl analyze
    
 ```
  
+ **Step 02: Define service (eu) that have label selector (app: hello) for all deployments** `svc-eu.yaml`
+ 
 ```
- apiVersion: v1
+apiVersion: v1
 kind: Service
 metadata:
   annotations:
@@ -359,9 +365,13 @@ metadata:
   labels:
     app.kubernetes.io/managed-by: Helm
     svc-name: hello-world-eu
-  namespace: interview
   name: hello-world-eu
+  namespace: interview
+  resourceVersion: "2163376"
 spec:
+  clusterIP: 172.20.134.204
+  clusterIPs:
+  - 172.20.134.204
   internalTrafficPolicy: Cluster
   ipFamilies:
   - IPv4
@@ -371,72 +381,269 @@ spec:
     protocol: TCP
     targetPort: 8000
   selector:
-    svc-name: hello-world-eu
+    app: hello
   sessionAffinity: None
   type: ClusterIP
 status:
   loadBalancer: {}
+
+  ```
+   **Output for service and deployments **
+
+  ```
+  PS C:\Allinaz_Task\httpbin> kubectl get svc -n interview -o wide
+NAME             TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)   AGE     SELECTOR
+hello-world-de   ClusterIP   172.20.63.246    <none>        80/TCP    2d10h   svc-name=hello-world-de
+hello-world-es   ClusterIP   172.20.214.248   <none>        80/TCP    2d10h   svc-name=hello-world-es
+hello-world-eu   ClusterIP   172.20.134.204   <none>        80/TCP    32m     app=hello
+hello-world-fr   ClusterIP   172.20.70.6      <none>        80/TCP    2d10h   svc-name=hello-world-fr
+PS C:\Allinaz_Task\httpbin> kubectl deploy svc -n interview -o wide^C
+PS C:\Allinaz_Task\httpbin> kubectl get deploy -n interview -o wide
+NAME              READY   UP-TO-DATE   AVAILABLE   AGE   CONTAINERS       IMAGES                                                SELECTOR
+hello-world-de    1/1     1            1           22m   hello-world-de   adamgolab/hello-world:latest                          app=hello,svc-name=hello-world-de
+hello-world-es    1/1     1            1           20m   hello-world-es   adamgolab/hello-world:latest                          app=hello,svc-name=hello-world-es
+hello-world-eu    1/1     1            1           47h   hello-world-de   adamgolab/hello-world:latest                          svc-name=hello-world-eu
+hello-world-fr    1/1     1            1           19m   hello-world-fr   adamgolab/hello-world:latest                          app=hello,svc-name=hello-world-fr
+  
+  
   ```
   
+   **Step 03: Define Gateway ** `gateway.yaml`
   
   
   ```
-  apiVersion: networking.istio.io/v1alpha3
+apiVersion: networking.istio.io/v1beta1
 kind: Gateway
 metadata:
-  name: hello-word-gateway
+  name: hello-world-eu-gateway
+  namespace: default
 spec:
   selector:
-    istio: ingressgateway # use Istio default gateway implementation
+    istio: ingressgateway
   servers:
-  - port:
-      number: 80
+  - hosts:
+    - a400544bd402841f39cf622fdf2dbcf9-563330185.us-east-1.elb.amazonaws.com
+    port:
       name: http
+      number: 80
       protocol: HTTP
-    hosts:
-    - "*"   # Domain name of the external website
-```
-
 
 ```
+
+     **Output for Gateway**
+
+```
+
+PS C:\Allinaz_Task\httpbin> kubectl describe gateway hello-world-eu-gateway        
+Name:         hello-world-eu-gateway
+Namespace:    default
+Labels:       <none>
+Annotations:  <none>
+API Version:  networking.istio.io/v1beta1
+Kind:         Gateway
+Metadata:
+  Creation Timestamp:  2022-12-29T10:22:10Z
+  Generation:          1
+  Managed Fields:
+    API Version:  networking.istio.io/v1beta1
+    Fields Type:  FieldsV1
+    fieldsV1:
+      f:spec:
+        .:
+        f:selector:
+          .:
+          f:istio:
+        f:servers:
+    Manager:         kubectl-replace
+    Operation:       Update
+    Time:            2022-12-29T10:22:10Z
+  Resource Version:  2168766
+  UID:               d5b1c9fe-d75f-43a8-ad07-62071b0b1143
+Spec:
+  Selector:
+    Istio:  ingressgateway
+  Servers:
+    Hosts:
+      a400544bd402841f39cf622fdf2dbcf9-563330185.us-east-1.elb.amazonaws.com
+    Port:
+      Name:      http
+      Number:    80
+      Protocol:  HTTP
+Events:          <none>
+```
+
+   **Step 04: Define  VirtualService** `virtualservice.yaml`
+  
+  
+```
+apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
-apiVersion: networking.istio.io/v1alpha3
 metadata:
-  name: hello-word-vs
+  name: hello-world-eu
   namespace: interview
 spec:
-  hosts:      # which incoming host are we applying the proxy rules to???
-    - "*" # Copy the value in the gateway hosts - usually a Domain Name
   gateways:
-    - hello-word-gateway
+  - hello-world-eu-gateway.default
+  hosts:
+  - a400544bd402841f39cf622fdf2dbcf9-563330185.us-east-1.elb.amazonaws.com
   http:
-  - match:     # This is a LIST
-    - uri: 
-        exact: /eu   # prefix: /static
-    route: # THEN
+  - match:
+    - uri:
+        prefix: /eu
+    rewrite:
+      uri: /
+    route:
     - destination:
-        host: hello-world-eu
- 	port:
-	  number: 8000	
-```
+        host: hello-world-eu.interview.svc.cluster.local
+        port:
+          number: 80
 
 ```
-apiVersion: networking.istio.io/v1alpha3
+     **Output for VirtualService**
+  
+  OutPut
+   ```
+PS C:\Allinaz_Task\httpbin> kubectl get vs -n interview
+NAME             GATEWAYS                             HOSTS                                                                        AGE 
+hello-world-eu   ["hello-world-eu-gateway.default"]   ["a400544bd402841f39cf622fdf2dbcf9-563330185.us-east-1.elb.amazonaws.com"]   9m8s
+PS C:\Allinaz_Task\httpbin> kubectl describe vs -n interview
+Name:         hello-world-eu
+Namespace:    interview
+Labels:       <none>
+Annotations:  <none>
+API Version:  networking.istio.io/v1beta1
+Kind:         VirtualService
+Metadata:
+  Creation Timestamp:  2022-12-29T10:23:41Z
+  Generation:          1
+  Managed Fields:
+    API Version:  networking.istio.io/v1beta1
+    Fields Type:  FieldsV1
+    fieldsV1:
+      f:spec:
+        .:
+        f:gateways:
+        f:hosts:
+        f:http:
+    Manager:         kubectl-replace
+    Operation:       Update
+    Time:            2022-12-29T10:23:41Z
+  Resource Version:  2169220
+  UID:               09a999ea-7b8b-48ab-800d-109e53ccfae8
+Spec:
+  Gateways:
+    hello-world-eu-gateway.default
+  Hosts:
+    a400544bd402841f39cf622fdf2dbcf9-563330185.us-east-1.elb.amazonaws.com
+  Http:
+    Match:
+      Uri:
+        Prefix:  /eu
+    Rewrite:
+      Uri:  /
+    Route:
+      Destination:
+        Host:  hello-world-eu.interview.svc.cluster.local
+        Port:
+          Number:  80
+Events:            <none>
+
+```
+  
+     **Step 04: Define DestinationRule** `destinationrule.yaml`
+
+
+```
+apiVersion: networking.istio.io/v1beta1
 kind: DestinationRule
 metadata:
+  creationTimestamp: "2022-12-29T10:26:55Z"
+  generation: 1
   name: hello-word-destination-rule
+  namespace: interview
+  resourceVersion: "2170194"
+  uid: 385ed270-7fa3-4399-937c-966d96de4863
 spec:
-  host: hello-world-eu.interview.svc.cluster.local 
+  host: hello-world-eu.interview.svc.cluster.local
   trafficPolicy:
     loadBalancer:
       simple: ROUND_ROBIN
+
+  ```
+  
+     **Output for DestinationRule**
+   ```
+  PS C:\Allinaz_Task\httpbin> kubectl get destinationrules -n interview
+NAME                          HOST                                         AGE
+hello-word-destination-rule   hello-world-eu.interview.svc.cluster.local   4m5s
+PS C:\Allinaz_Task\httpbin> kubectl describe destinationrules hello-word-destination-rule -n interview
+Name:         hello-word-destination-rule
+Namespace:    interview
+Labels:       <none>
+Annotations:  <none>
+API Version:  networking.istio.io/v1beta1
+Kind:         DestinationRule
+Metadata:
+  Creation Timestamp:  2022-12-29T10:26:55Z
+  Generation:          1
+  Managed Fields:
+    API Version:  networking.istio.io/v1alpha3
+    Fields Type:  FieldsV1
+    fieldsV1:
+      f:spec:
+        .:
+        f:host:
+        f:trafficPolicy:
+          .:
+          f:loadBalancer:
+            .:
+            f:simple:
+    Manager:         kubectl-create
+    Operation:       Update
+    Time:            2022-12-29T10:26:55Z
+  Resource Version:  2170194
+  UID:               385ed270-7fa3-4399-937c-966d96de4863
+Spec:
+  Host:  hello-world-eu.interview.svc.cluster.local
+  Traffic Policy:
+    Load Balancer:
+      Simple:  ROUND_ROBIN
+Events:        <none>
+  
+ ```
+
+ **Step 05: Output from Browser
+  
+Output
+```bash
+# visit this from browser
+http://a400544bd402841f39cf622fdf2dbcf9-563330185.us-east-1.elb.amazonaws.com/eu
+Hello Freund
+http://a400544bd402841f39cf622fdf2dbcf9-563330185.us-east-1.elb.amazonaws.com/eu
+Hello Amigo
+http://a400544bd402841f39cf622fdf2dbcf9-563330185.us-east-1.elb.amazonaws.com/eu
+Hello Ami
+```
+
+   **Step 06: Output from Logs
+  
+  ```
+PS C:\Allinaz_Task\httpbin> kubectl logs hello-world-de-7f7dd84f4-5vlc5 -c istio-proxy -n interview
+  
+ [2022-12-29T10:28:27.371Z] "GET /eu HTTP/1.1" 200 - via_upstream - "-" 0 12 3 1 "10.0.1.254" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0" "cac59189-37ab-9dcc-bdcd-1ea952540f0b" "a400544bd402841f39cf622fdf2dbcf9-563330185.us-east-1.elb.amazonaws.com" "10.0.1.177:8000" inbound|8000|| 127.0.0.6:44271 10.0.1.177:8000 10.0.1.254:0 outbound_.80_._.hello-world-eu.interview.svc.cluster.local default 
+  
+  
+  
+  PS C:\Allinaz_Task\httpbin> kubectl logs istio-ingressgateway-6bd9cfd8-vj9dc -n istio-system -f
+  
+  [2022-12-29T10:55:50.627Z] "GET /eu HTTP/1.1" 200 - via_upstream - "-" 0 12 17 17 "10.0.112.54" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0" "ab1e2534-fb97-9f2e-a496-ac7cd5c48c61" "a400544bd402841f39cf622fdf2dbcf9-563330185.us-east-1.elb.amazonaws.com" "10.0.1.177:8000" outbound|80||hello-world-eu.interview.svc.cluster.local 10.0.111.166:44162 10.0.111.166:8080 10.0.112.54:1258 - -       
+[2022-12-29T10:55:50.919Z] "GET /favicon.ico HTTP/1.1" 404 NR route_not_found - "-" 0 0 0 - "10.0.2.176" "Mozilla/5.0 (Windows NT 10.0; Win64; 
+x64; rv:108.0) Gecko/20100101 Firefox/108.0" "6c0dc98c-d930-98dd-850c-3f9b7028dd77" "a400544bd402841f39cf622fdf2dbcf9-563330185.us-east-1.elb.amazonaws.com" "-" - - 10.0.111.166:8080 10.0.2.176:23674 - -
+[2022-12-29T10:55:54.809Z] "GET /eu HTTP/1.1" 200 - via_upstream - "-" 0 9 17 15 "10.0.112.54" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0" "6293b2b6-7c06-99dd-bd80-ffa509cad457" "a400544bd402841f39cf622fdf2dbcf9-563330185.us-east-1.elb.amazonaws.com" "10.0.2.243:8000" outbound|80||hello-world-eu.interview.svc.cluster.local 10.0.111.166:48114 10.0.111.166:8080 10.0.112.54:1258 - -        
+[2022-12-29T10:55:55.020Z] "GET /favicon.ico HTTP/1.1" 404 NR route_not_found - "-" 0 0 0 - "10.0.112.54" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0" "7d270f81-6c9d-97ad-a6ab-0319be07bf60" "a400544bd402841f39cf622fdf2dbcf9-563330185.us-east-1.elb.amazonaws.com" "-" - - 10.0.111.166:8080 10.0.112.54:1258 - -
+    
   ```
   
   
   
-
-
-
-
-
 
