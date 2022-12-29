@@ -340,7 +340,7 @@ istioctl analyze
   
  
   
-  **Step 01: injected namespace and make deployment rollout restart
+  **Step 01: injected namespace and make deployment rollout restart**
   
 ```
   Kubectl label ns interview istio-injection=enabled
@@ -388,7 +388,7 @@ status:
   loadBalancer: {}
 
   ```
-  
+   **Output for service and deployments **
 
   ```
   PS C:\Allinaz_Task\httpbin> kubectl get svc -n interview -o wide
@@ -408,8 +408,7 @@ hello-world-fr    1/1     1            1           19m   hello-world-fr   adamgo
   
   ```
   
-  
-  **Here is define a VPC variable in Terraform:** `c3-01-vpc-variables.tf`
+   **Step 03: Define Gateway ** `gateway.yaml`
   
   
   ```
@@ -431,6 +430,7 @@ spec:
 
 ```
 
+     **Output for Gateway**
 
 ```
 
@@ -472,7 +472,8 @@ Spec:
 Events:          <none>
 ```
 
-**Here is define a VPC variable in Terraform:** `c3-01-vpc-variables.tf`
+   **Step 04: Define  VirtualService** `virtualservice.yaml`
+  
   
 ```
 apiVersion: networking.istio.io/v1beta1
@@ -498,7 +499,7 @@ spec:
           number: 80
 
 ```
-
+     **Output for VirtualService**
   
   OutPut
    ```
@@ -548,8 +549,9 @@ Spec:
 Events:            <none>
 
 ```
+  
+     **Step 04: Define DestinationRule** `destinationrule.yaml`
 
-**Here is define a VPC variable in Terraform:** `c3-01-vpc-variables.tf`
 
 ```
 apiVersion: networking.istio.io/v1beta1
@@ -569,7 +571,7 @@ spec:
 
   ```
   
-  Output
+     **Output for DestinationRule**
    ```
   PS C:\Allinaz_Task\httpbin> kubectl get destinationrules -n interview
 NAME                          HOST                                         AGE
@@ -610,7 +612,7 @@ Events:        <none>
   
  ```
 
-  **Here is define a VPC variable in Terraform:** `c3-01-vpc-variables.tf`
+ **Step 05: Output from Browser
   
 Output
 ```bash
@@ -623,5 +625,25 @@ http://a400544bd402841f39cf622fdf2dbcf9-563330185.us-east-1.elb.amazonaws.com/eu
 Hello Ami
 ```
 
-
+   **Step 06: Output from Logs
+  
+  ```
+PS C:\Allinaz_Task\httpbin> kubectl logs hello-world-de-7f7dd84f4-5vlc5 -c istio-proxy -n interview
+  
+ [2022-12-29T10:28:27.371Z] "GET /eu HTTP/1.1" 200 - via_upstream - "-" 0 12 3 1 "10.0.1.254" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0" "cac59189-37ab-9dcc-bdcd-1ea952540f0b" "a400544bd402841f39cf622fdf2dbcf9-563330185.us-east-1.elb.amazonaws.com" "10.0.1.177:8000" inbound|8000|| 127.0.0.6:44271 10.0.1.177:8000 10.0.1.254:0 outbound_.80_._.hello-world-eu.interview.svc.cluster.local default 
+  
+  
+  
+  PS C:\Allinaz_Task\httpbin> kubectl logs istio-ingressgateway-6bd9cfd8-vj9dc -n istio-system -f
+  
+  [2022-12-29T10:55:50.627Z] "GET /eu HTTP/1.1" 200 - via_upstream - "-" 0 12 17 17 "10.0.112.54" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0" "ab1e2534-fb97-9f2e-a496-ac7cd5c48c61" "a400544bd402841f39cf622fdf2dbcf9-563330185.us-east-1.elb.amazonaws.com" "10.0.1.177:8000" outbound|80||hello-world-eu.interview.svc.cluster.local 10.0.111.166:44162 10.0.111.166:8080 10.0.112.54:1258 - -       
+[2022-12-29T10:55:50.919Z] "GET /favicon.ico HTTP/1.1" 404 NR route_not_found - "-" 0 0 0 - "10.0.2.176" "Mozilla/5.0 (Windows NT 10.0; Win64; 
+x64; rv:108.0) Gecko/20100101 Firefox/108.0" "6c0dc98c-d930-98dd-850c-3f9b7028dd77" "a400544bd402841f39cf622fdf2dbcf9-563330185.us-east-1.elb.amazonaws.com" "-" - - 10.0.111.166:8080 10.0.2.176:23674 - -
+[2022-12-29T10:55:54.809Z] "GET /eu HTTP/1.1" 200 - via_upstream - "-" 0 9 17 15 "10.0.112.54" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0" "6293b2b6-7c06-99dd-bd80-ffa509cad457" "a400544bd402841f39cf622fdf2dbcf9-563330185.us-east-1.elb.amazonaws.com" "10.0.2.243:8000" outbound|80||hello-world-eu.interview.svc.cluster.local 10.0.111.166:48114 10.0.111.166:8080 10.0.112.54:1258 - -        
+[2022-12-29T10:55:55.020Z] "GET /favicon.ico HTTP/1.1" 404 NR route_not_found - "-" 0 0 0 - "10.0.112.54" "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0" "7d270f81-6c9d-97ad-a6ab-0319be07bf60" "a400544bd402841f39cf622fdf2dbcf9-563330185.us-east-1.elb.amazonaws.com" "-" - - 10.0.111.166:8080 10.0.112.54:1258 - -
+    
+  ```
+  
+  
+  
 
